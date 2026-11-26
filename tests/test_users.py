@@ -1,5 +1,7 @@
 import unittest, sys, os
 
+# Use an in-memory database so tests never touch instance/site.db.
+os.environ['DATABASE_URL'] = 'sqlite:///:memory:'
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from app import app, db
 
@@ -8,7 +10,6 @@ class UsersTests(unittest.TestCase):
     # executed prior to each test
     def setUp(self):
         app.config['SECRET_KEY'] = 'test-secret'
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
         self.app = app.test_client()
         with app.app_context():
             db.drop_all()

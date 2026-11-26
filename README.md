@@ -49,6 +49,7 @@ Open http://127.0.0.1:5001, register an account, and log in. The SQLite database
 | `GENAI_KEY` | Google AI Studio key for workout plans. |
 | `GENAI_MODEL` | Gemini model name (default `gemini-2.5-flash`). |
 | `SPOONACULAR_KEY` | Spoonacular key for recipe search. |
+| `DATABASE_URL` | Optional. SQLAlchemy URL (default `sqlite:///site.db`). |
 | `FLASK_DEBUG` | Set to `1` for the Flask debugger locally. Leave at `0` anywhere else. |
 
 ## Run the tests
@@ -59,7 +60,7 @@ python tests/test_users.py
 python tests/test_apis.py
 ```
 
-The API tests mock Gemini and Spoonacular, so no keys are needed.
+The API tests mock Gemini and Spoonacular, so no keys are needed. The tests use an in-memory database, so your local accounts are left alone.
 
 ## Deploy (Render free tier)
 
