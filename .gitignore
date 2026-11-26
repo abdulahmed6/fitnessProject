@@ -1,0 +1,19 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Local database (created automatically on first run)
+instance/
+*.db
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/

@@ -12,12 +12,12 @@ from flask_migrate import Migrate
 import requests
 
 app = Flask(__name__)
-app.secret_key = os.getenv("FLASK_KEY")
+app.secret_key = os.getenv("FLASK_KEY", "dev-only-change-me")
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///site.db')
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
@@ -118,12 +118,27 @@ def logout():
     return redirect(url_for('login'))
 
 @app.route("/recipeurl", methods=["POST"])
+@login_required
 def recipeurl():
-    if request.method == "POST":
-        params = {"apiKey": os.getenv("SPOONACULAR_KEY")}
-        url = "https://api.spoonacular.com/recipes/"+str(request.form["recipe_id"])+"/information"
-        response = requests.get(url, params=params)
-        sourceUrl = response.json()["sourceUrl"]
-    return redirect(sourceUrl)
+    recipe_id = request.form.get("recipe_id", "")
+    if not recipe_id.isdigit():
+        flash("Could not open that recipe.", "danger")
+        return redirect(url_for("recipes"))
+    params = {"apiKey": os.getenv("SPOONACULAR_KEY")}
+    url = f"https://api.spoonacular.com/recipes/{recipe_id}/information"
+    try:
+        response = requests.get(url, params=params, timeout=10)
+        response.raise_for_status()
+        source_url = response.json().get("sourceUrl")
+    except (requests.RequestException, ValueError):
+        source_url = None
+    if not source_url:
+        flash("Could not open that recipe right now. Please try again.", "danger")
+        return redirect(url_for("recipes"))
+    return redirect(source_url)
+
+
 if __name__ == '__main__':
-        app.run(debug=True, host="0.0.0.0",port=5001)
+    # Debug mode exposes the Werkzeug debugger, so it is opt-in and local-only.
+    debug = os.getenv("FLASK_DEBUG", "0") == "1"
+    app.run(debug=debug, host=os.getenv("HOST", "127.0.0.1"), port=int(os.getenv("PORT", "5001")))

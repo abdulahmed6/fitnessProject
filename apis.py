@@ -39,7 +39,8 @@ def genai_fitness_plan(height, weight, goal, age=None, gender=None):
             "Make the HTML clean and mobile-friendly. Do not include <html>, <head>, any words that say html in the text or in the headers, or <body> tags—just content ready for insertion in a template."
         )
 
-        model = genai.GenerativeModel("gemini-1.5-flash")
+        # gemini-1.5-flash has been retired by Google; the model is configurable via GENAI_MODEL.
+        model = genai.GenerativeModel(os.getenv("GENAI_MODEL", "gemini-2.5-flash"))
         response = model.generate_content(prompt)
         text = response.text
 
